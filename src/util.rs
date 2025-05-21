@@ -29,12 +29,33 @@ pub fn cheap_matches(
 /// Given 2 character, check if they are equal (considering ascii case)
 /// e.g. ('a', 'A', true) => false
 /// e.g. ('a', 'A', false) => true
+/// e.g. ('ä', 'a', false) => true
+#[inline]
+fn normalize_char(c: char) -> char {
+    match c {
+        'ä' | 'Ä' => 'a',
+        'ö' | 'Ö' => 'o',
+        'ü' | 'Ü' => 'u',
+        'ß' => 's',
+        'é' | 'è' | 'ê' | 'ë' | 'É' | 'È' | 'Ê' | 'Ë' => 'e',
+        'á' | 'à' | 'â' | 'ã' | 'å' | 'Á' | 'À' | 'Â' | 'Ã' | 'Å' => 'a',
+        'í' | 'ì' | 'î' | 'ï' | 'Í' | 'Ì' | 'Î' | 'Ï' => 'i',
+        'ó' | 'ò' | 'ô' | 'õ' | 'Ó' | 'Ò' | 'Ô' | 'Õ' => 'o',
+        'ú' | 'ù' | 'û' | 'Ú' | 'Ù' | 'Û' => 'u',
+        'ý' | 'ÿ' | 'Ý' => 'y',
+        'ñ' | 'Ñ' => 'n',
+        _ => c,
+    }
+}
+
 #[inline]
 pub fn char_equal(a: char, b: char, case_sensitive: bool) -> bool {
+    let a_norm = normalize_char(a);
+    let b_norm = normalize_char(b);
     if case_sensitive {
-        a == b
+        a_norm == b_norm && a.is_uppercase() == b.is_uppercase()
     } else {
-        a.eq_ignore_ascii_case(&b)
+        a_norm.eq_ignore_ascii_case(&b_norm)
     }
 }
 
